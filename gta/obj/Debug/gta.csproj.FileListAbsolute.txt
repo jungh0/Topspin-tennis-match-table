@@ -1,0 +1,10 @@
+C:\Users\USER\Desktop\gta\gta\obj\Debug\gta.csprojAssemblyReference.cache
+C:\Users\USER\Desktop\gta\gta\obj\Debug\gta.Form1.resources
+C:\Users\USER\Desktop\gta\gta\obj\Debug\gta.csproj.GenerateResource.cache
+C:\Users\USER\Desktop\gta\gta\obj\Debug\gta.csproj.CoreCompileInputs.cache
+C:\Users\USER\Desktop\gta\gta\obj\Debug\GTA.Properties.Resources.resources
+C:\Users\USER\Desktop\gta\gta\bin\Debug\GTA.exe.config
+C:\Users\USER\Desktop\gta\gta\bin\Debug\GTA.exe
+C:\Users\USER\Desktop\gta\gta\bin\Debug\GTA.pdb
+C:\Users\USER\Desktop\gta\gta\obj\Debug\GTA.exe
+C:\Users\USER\Desktop\gta\gta\obj\Debug\GTA.pdb
