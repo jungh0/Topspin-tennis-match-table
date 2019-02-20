@@ -164,17 +164,18 @@ namespace gta
         private void start_Click(object sender, EventArgs e)
         {
             ArrayList playin = new ArrayList();//참가하는 모든 사람
+           
+            string strResult = request("https://m.cafe.naver.com/ArticleRead.nhn?clubid=14021316&articleid=" + split(url.Text, "/")[4] + "&page=1").Replace(" ", "").Replace("\n", "").Replace("\t", "");
 
-            string strResult = request("https://m.cafe.naver.com/ArticleRead.nhn?clubid=14021316&articleid=" + split(url.Text, "/")[4] + "&page=1");
             string strResult1 = request("http://m.cafe.naver.com/CommentView.nhn?search.clubid=14021316&search.page=" + "1" + "&search.articleid=" + split(url.Text, "/")[4]);
             string page = between(strResult1, "<ul class=\"u_cbox_list\">", "</ul>");
-            if(Convert.ToInt32(between(strResult, "<em class=\"u_cnt\">", "</em>")) > 100)
+            if (Convert.ToInt32(between(strResult, "<spanclass=\"blind\">댓글</span><em>", "</em>")) > 100)
             {
                 string strResult2 = request("http://m.cafe.naver.com/CommentView.nhn?search.clubid=14021316&search.page=" + "2" + "&search.articleid=" + split(url.Text, "/")[4]);
                 page = page + between(strResult2, "<ul class=\"u_cbox_list\">", "</ul>");
             }
             page = page.Replace(" ", "");
-
+            
             string[] detail = split(page, "<divclass=\"u_cbox_comment_box\">");
             for (int cnt = 1; cnt < detail.Length; cnt++)
             {
@@ -189,8 +190,9 @@ namespace gta
 
                     string writer = between(detail2, "<spanclass=\"u_cbox_info_main\">", "</span>");//댓글 작성자
                     writer = HtmlStrip(writer);
-                    writer = writer.Replace("\r\n", "").Replace("작성자", "").Replace("New", "");
+                    writer = writer.Replace("\r\n", "").Replace("작성자", "").Replace("New", "").Replace("\n", "");
                     //MessageBox.Show(contents);
+                    //MessageBox.Show(writer);
 
                     char cate = contents.ToUpper().ToCharArray()[0];
                     if (cate <= 'Z' && cate >= 'A')//댓글 내용중에 앞에 첫글자가 알파벳으로 시작

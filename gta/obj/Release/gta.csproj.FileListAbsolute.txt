@@ -28,3 +28,13 @@ E:\Cloud\CloudStation\Project\Normal_Project\테니스 아카데미\자동 대�
 E:\Cloud\CloudStation\Project\Normal_Project\테니스 아카데미\자동 대진표\진짜 최종\gta\gta\obj\Release\gta.csproj.CoreCompileInputs.cache
 E:\Cloud\CloudStation\Project\Normal_Project\테니스 아카데미\자동 대진표\진짜 최종\gta\gta\obj\Release\GTA.exe
 E:\Cloud\CloudStation\Project\Normal_Project\테니스 아카데미\자동 대진표\진짜 최종\gta\gta\obj\Release\GTA.pdb
+C:\Users\USER\Desktop\github\gta\bin\Release\GTA.exe.config
+C:\Users\USER\Desktop\github\gta\bin\Release\GTA.exe
+C:\Users\USER\Desktop\github\gta\bin\Release\GTA.pdb
+C:\Users\USER\Desktop\github\gta\obj\Release\gta.csprojAssemblyReference.cache
+C:\Users\USER\Desktop\github\gta\obj\Release\gta.Form1.resources
+C:\Users\USER\Desktop\github\gta\obj\Release\GTA.Properties.Resources.resources
+C:\Users\USER\Desktop\github\gta\obj\Release\gta.csproj.GenerateResource.cache
+C:\Users\USER\Desktop\github\gta\obj\Release\gta.csproj.CoreCompileInputs.cache
+C:\Users\USER\Desktop\github\gta\obj\Release\GTA.exe
+C:\Users\USER\Desktop\github\gta\obj\Release\GTA.pdb
