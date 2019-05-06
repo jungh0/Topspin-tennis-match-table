@@ -31,7 +31,7 @@ namespace gta
             return contents;
         }
 
-        public static string request(string url)
+        public static string request(string url,string encode)
         {
             HttpWebRequest request5 = (HttpWebRequest)WebRequest.Create(url);
             request5.Method = "Get";
@@ -45,7 +45,7 @@ namespace gta
 
             HttpWebResponse response = (HttpWebResponse)request5.GetResponse();
             Stream stReadData = response.GetResponseStream();
-            StreamReader srReadData = new StreamReader(stReadData, Encoding.GetEncoding("utf-8"));
+            StreamReader srReadData = new StreamReader(stReadData, Encoding.GetEncoding(encode));
 
             string strResult = srReadData.ReadToEnd();
             response.Close();
@@ -60,6 +60,22 @@ namespace gta
             return Regex.Replace(input, @"<(.|\n)*?>", string.Empty); // remove any tags but not there content "<p>bob<span> johnson</span></p>" becomes "bob johnson"
         }
 
+        public static string euckr(string str)
+        {
+            Encoding euckr = Encoding.GetEncoding(51949);
+            byte[] tmp = euckr.GetBytes(str);
+
+            string res = "";
+
+            foreach (byte b in tmp)
+            {
+                res += "%";
+                res += string.Format("{0:X}", b);
+            }
+
+            return res;
+        }
+
         public string[] check_grade(string name)
         {
             try
@@ -67,31 +83,65 @@ namespace gta
                 int win_cnt = 0;
                 string grade = "";
                 System.Windows.Forms.Application.DoEvents();
-                string strResult1 = request("https://m.cafe.naver.com/ArticleSearchList.nhn?search.query=" + name + "&search.menuid=&search.searchBy=1&search.sortBy=date&search.clubid=14021316&search.option=0&search.defaultValue=");
-                if (!strResult1.Contains("<ul class=\"list_tit\">"))
+ 
+                //string strResult1 = request("https://m.cafe.naver.com/ArticleSearchList.nhn?search.query=" + name + "&search.menuid=&search.searchBy=1&search.sortBy=date&search.clubid=14021316&search.option=0&search.defaultValue=");
+                string strResult1 = request("https://cafe.naver.com/ArticleSearchList.nhn?search.clubid=14021316&search.searchBy=1&search.query=" + euckr(name),"euc-kr");
+                //string strResult1 = request("https://cafe.naver.com/topspintennis?iframe_url=/ArticleSearchList.nhn%3Fsearch.clubid=14021316%26search.searchdate=all%26search.searchBy=0%26search.query=" + name + "%26search.defaultValue=1%26search.includeAll=%26search.exclude=%26search.include=%26search.exact=%26search.sortBy=date%26userDisplay=15%26search.media=0%26search.option=0");
+
+                if (!strResult1.Contains("<span class=\"head\">"))
                 {
                     return new string[2] { "0", "" };
                 }
+                /*
                 string page = between(strResult1, "<ul class=\"list_tit\">", "</ul>");
-
+                
                 if (!page.Contains("<h3>"))
                 {
                     return new string[2] { "0", "" };
-                }
+                }*/
                 
-                string[] detail = split(page, "<h3>");
+                string[] detail = split(strResult1, "<span class=\"head\">");
+                
                 for (int cnt = 1; cnt < detail.Length; cnt++)
                 {
-                    string detail2 = split(detail[cnt], "</h3>")[0];//cnt를 바꾸면 다음 댓글이 나옴
+                    
+                    string detail2 = split(detail[cnt], "</span>")[0];//cnt를 바꾸면 다음 댓글이 나옴
+                    
                     detail2 = HtmlStrip(detail2);
-
+                    detail2.Replace("\t", "").Replace(" ", "").Replace(" ", "");
+                    detail2 = split(split(detail2, "[")[1], "]")[0];
+                    //MessageBox.Show(detail2);
                     //richTextBox1.Text = richTextBox1.Text + detail2 + "\n";
+                    if (detail2.Contains("마일리지우승"))
+                    {
+                        win_cnt++;
+                    }
+                    else
+                    {
+                        bool isAlphaBet = Regex.IsMatch(detail2[0].ToString(), "[a-z]", RegexOptions.IgnoreCase);
+                        if (isAlphaBet)
+                        {
+                            grade = detail2[0].ToString().ToUpper();
+                            //richTextBox1.Text = richTextBox1.Text + win_cnt.ToString() + "\n";
+                            //richTextBox1.Text = richTextBox1.Text + grade + "\n";
+                            return new string[2] { win_cnt.ToString(), grade };//여기가 정상종료
+                        }
+                    }
 
+                    /*
                     //조를 결정할때 2가지 경우의 수가 있음
                     //1.우승 시 조 입니다
-                    if (detail2.Contains("조 입니다"))
+                    if (detail2.Contains("조 입니다") && !detail2.Contains("마일리지우승"))
                     {
                         int location = detail2.IndexOf("조 입니다");
+                        grade = detail2[location - 1].ToString().ToUpper();
+                        //richTextBox1.Text = richTextBox1.Text + win_cnt.ToString() + "\n";
+                        //richTextBox1.Text = richTextBox1.Text + grade + "\n";
+                        return new string[2] { win_cnt.ToString(), grade };//여기가 정상종료
+                    }
+                    if (detail2.Contains("조입니다") && !detail2.Contains("마일리지우승"))
+                    {
+                        int location = detail2.IndexOf("조입니다");
                         grade = detail2[location - 1].ToString().ToUpper();
                         //richTextBox1.Text = richTextBox1.Text + win_cnt.ToString() + "\n";
                         //richTextBox1.Text = richTextBox1.Text + grade + "\n";
@@ -105,12 +155,14 @@ namespace gta
                         //richTextBox1.Text = richTextBox1.Text + win_cnt.ToString() + "\n";
                         //richTextBox1.Text = richTextBox1.Text + grade + "\n";
                         return new string[2] { win_cnt.ToString(), grade };//여기가 정상종료
-                    }
+                    }*/
 
-                    if (detail2.Contains("우승"))
-                    {
-                        win_cnt++;
-                    }
+                    
+
+                }
+                if (win_cnt > 0)
+                {
+                    return new string[2] { win_cnt.ToString(), "" };
                 }
                 return new string[2] { "0", "" };
             }
@@ -165,13 +217,13 @@ namespace gta
         {
             ArrayList playin = new ArrayList();//참가하는 모든 사람
            
-            string strResult = request("https://m.cafe.naver.com/ArticleRead.nhn?clubid=14021316&articleid=" + split(url.Text, "/")[4] + "&page=1").Replace(" ", "").Replace("\n", "").Replace("\t", "");
+            string strResult = request("https://m.cafe.naver.com/ArticleRead.nhn?clubid=14021316&articleid=" + split(url.Text, "/")[4] + "&page=1", "utf-8").Replace(" ", "").Replace("\n", "").Replace("\t", "");
 
-            string strResult1 = request("http://m.cafe.naver.com/CommentView.nhn?search.clubid=14021316&search.page=" + "1" + "&search.articleid=" + split(url.Text, "/")[4]);
+            string strResult1 = request("http://m.cafe.naver.com/CommentView.nhn?search.clubid=14021316&search.page=" + "1" + "&search.articleid=" + split(url.Text, "/")[4], "utf-8");
             string page = between(strResult1, "<ul class=\"u_cbox_list\">", "</ul>");
             if (Convert.ToInt32(between(strResult, "<spanclass=\"blind\">댓글</span><em>", "</em>")) > 100)
             {
-                string strResult2 = request("http://m.cafe.naver.com/CommentView.nhn?search.clubid=14021316&search.page=" + "2" + "&search.articleid=" + split(url.Text, "/")[4]);
+                string strResult2 = request("http://m.cafe.naver.com/CommentView.nhn?search.clubid=14021316&search.page=" + "2" + "&search.articleid=" + split(url.Text, "/")[4], "utf-8");
                 page = page + between(strResult2, "<ul class=\"u_cbox_list\">", "</ul>");
             }
             page = page.Replace(" ", "");
@@ -248,9 +300,10 @@ namespace gta
                 
             }
             richTextBox1.Text = richTextBox1.Text + "------------------------\n";
-
+            toolStripProgressBar1.Maximum = playin.Count;
             for (int i = 0; i < playin.Count; i++)
             {
+                toolStripProgressBar1.Value = i + 1;
                 String[] result = check_grade(split(playin[i].ToString(), "-")[0]);
                 playin[i] = playin[i] + "-" + result[0];
 
@@ -323,6 +376,11 @@ namespace gta
 
             System.IO.File.WriteAllText(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + "\\아카데미조_" + System.DateTime.Now.ToString("yyyy_MM_dd_hh_mm") + ".csv", csv, Encoding.Default);
             MessageBox.Show("완료");
+        }
+
+        private void toolStripProgressBar1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
