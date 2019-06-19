@@ -221,9 +221,9 @@ namespace gta
 
             string strResult1 = request("http://m.cafe.naver.com/CommentView.nhn?search.clubid=14021316&search.page=" + "1" + "&search.articleid=" + split(url.Text, "/")[4], "utf-8");
             string page = between(strResult1, "<ul class=\"u_cbox_list\">", "</ul>");
-            if (Convert.ToInt32(between(strResult, "<spanclass=\"blind\">댓글</span><em>", "</em>")) > 100)
+            for (int cnt = 2; cnt <= Convert.ToInt32(textBox1.Text); cnt++)
             {
-                string strResult2 = request("http://m.cafe.naver.com/CommentView.nhn?search.clubid=14021316&search.page=" + "2" + "&search.articleid=" + split(url.Text, "/")[4], "utf-8");
+                string strResult2 = request("http://m.cafe.naver.com/CommentView.nhn?search.clubid=14021316&search.page=" + cnt.ToString() + "&search.articleid=" + split(url.Text, "/")[4], "utf-8");
                 page = page + between(strResult2, "<ul class=\"u_cbox_list\">", "</ul>");
             }
             page = page.Replace(" ", "");
