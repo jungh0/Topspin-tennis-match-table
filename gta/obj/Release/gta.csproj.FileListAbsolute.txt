@@ -58,3 +58,13 @@ C:\Users\USER\Desktop\Topspin-tennis-match-table\github\gta\obj\Release\gta.cspr
 C:\Users\USER\Desktop\Topspin-tennis-match-table\github\gta\obj\Release\gta.csproj.CoreCompileInputs.cache
 C:\Users\USER\Desktop\Topspin-tennis-match-table\github\gta\obj\Release\GTA.exe
 C:\Users\USER\Desktop\Topspin-tennis-match-table\github\gta\obj\Release\GTA.pdb
+D:\Github\Topspin-tennis-match-table\gta\bin\Release\GTA.exe.config
+D:\Github\Topspin-tennis-match-table\gta\bin\Release\GTA.exe
+D:\Github\Topspin-tennis-match-table\gta\bin\Release\GTA.pdb
+D:\Github\Topspin-tennis-match-table\gta\obj\Release\gta.csprojAssemblyReference.cache
+D:\Github\Topspin-tennis-match-table\gta\obj\Release\gta.Form1.resources
+D:\Github\Topspin-tennis-match-table\gta\obj\Release\GTA.Properties.Resources.resources
+D:\Github\Topspin-tennis-match-table\gta\obj\Release\gta.csproj.GenerateResource.cache
+D:\Github\Topspin-tennis-match-table\gta\obj\Release\gta.csproj.CoreCompileInputs.cache
+D:\Github\Topspin-tennis-match-table\gta\obj\Release\GTA.exe
+D:\Github\Topspin-tennis-match-table\gta\obj\Release\GTA.pdb
