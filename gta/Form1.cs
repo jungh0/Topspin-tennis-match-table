@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -17,21 +19,21 @@ namespace gta
 {
     public partial class Form1 : Form
     {
-        static String cookie = request("https://raw.githubusercontent.com/jungh0/Topspin-tennis-match-table/master/cook.txt", "utf-8");
+        static readonly String cookie = Request("https://raw.githubusercontent.com/jungh0/Topspin-tennis-match-table/master/cook.txt", "utf-8");
 
-        public string[] split(string a, string b)
+        public string[] Split(string a, string b)
         {
             return a.Split(new string[] { b }, StringSplitOptions.None);
         }
 
-        public string between(string a,string b, string c)
+        public string Between(string a, string b, string c)
         {
-            string contents = split(a, b)[1];
-            contents = split(contents, c)[0];
+            string contents = Split(a, b)[1];
+            contents = Split(contents, c)[0];
             return contents;
         }
 
-        public static string request(string url,string encode)
+        public static string Request(string url, string encode)
         {
             HttpWebRequest request5 = (HttpWebRequest)WebRequest.Create(url);
             request5.Method = "Get";
@@ -48,6 +50,8 @@ namespace gta
             StreamReader srReadData = new StreamReader(stReadData, Encoding.GetEncoding(encode));
 
             string strResult = srReadData.ReadToEnd();
+            srReadData.Dispose();
+
             response.Close();
             //MessageBox.Show(strResult);
             return strResult;
@@ -60,7 +64,7 @@ namespace gta
             return Regex.Replace(input, @"<(.|\n)*?>", string.Empty); // remove any tags but not there content "<p>bob<span> johnson</span></p>" becomes "bob johnson"
         }
 
-        public static string euckr(string str)
+        public static string Euckr(string str)
         {
             Encoding euckr = Encoding.GetEncoding(51949);
             byte[] tmp = euckr.GetBytes(str);
@@ -76,40 +80,40 @@ namespace gta
             return res;
         }
 
-        public string[] check_grade(string name)
+        public string[] Check_grade(string name)
         {
             try
             {
                 int win_cnt = 0;
                 string grade = "";
                 System.Windows.Forms.Application.DoEvents();
- 
+
                 //string strResult1 = request("https://m.cafe.naver.com/ArticleSearchList.nhn?search.query=" + name + "&search.menuid=&search.searchBy=1&search.sortBy=date&search.clubid=14021316&search.option=0&search.defaultValue=");
-                string strResult1 = request("https://cafe.naver.com/ArticleSearchList.nhn?search.clubid=14021316&search.searchBy=1&search.query=" + euckr(name),"euc-kr");
+                string strResult1 = Request("https://cafe.naver.com/ArticleSearchList.nhn?search.clubid=14021316&search.searchBy=1&search.query=" + Euckr(name), "euc-kr");
                 //string strResult1 = request("https://cafe.naver.com/topspintennis?iframe_url=/ArticleSearchList.nhn%3Fsearch.clubid=14021316%26search.searchdate=all%26search.searchBy=0%26search.query=" + name + "%26search.defaultValue=1%26search.includeAll=%26search.exclude=%26search.include=%26search.exact=%26search.sortBy=date%26userDisplay=15%26search.media=0%26search.option=0");
 
                 if (!strResult1.Contains("<span class=\"head\">"))
                 {
                     return new string[2] { "0", "" };
                 }
+
                 /*
                 string page = between(strResult1, "<ul class=\"list_tit\">", "</ul>");
-                
                 if (!page.Contains("<h3>"))
                 {
                     return new string[2] { "0", "" };
                 }*/
-                
-                string[] detail = split(strResult1, "<span class=\"head\">");
-                
+
+                string[] detail = Split(strResult1, "<span class=\"head\">");
+
                 for (int cnt = 1; cnt < detail.Length; cnt++)
                 {
-                    
-                    string detail2 = split(detail[cnt], "</span>")[0];//cnt를 바꾸면 다음 댓글이 나옴
-                    
+
+                    string detail2 = Split(detail[cnt], "</span>")[0];//cnt를 바꾸면 다음 댓글이 나옴
+
                     detail2 = HtmlStrip(detail2);
                     detail2.Replace("\t", "").Replace(" ", "").Replace(" ", "");
-                    detail2 = split(split(detail2, "[")[1], "]")[0];
+                    detail2 = Split(Split(detail2, "[")[1], "]")[0];
                     //MessageBox.Show(detail2);
                     //richTextBox1.Text = richTextBox1.Text + detail2 + "\n";
                     if (detail2.Contains("마일리지우승"))
@@ -157,8 +161,6 @@ namespace gta
                         return new string[2] { win_cnt.ToString(), grade };//여기가 정상종료
                     }*/
 
-                    
-
                 }
                 if (win_cnt > 0)
                 {
@@ -170,7 +172,7 @@ namespace gta
             {
                 return new string[2] { "0", "" };
             }
-            
+
         }
 
         public Form1()
@@ -186,173 +188,175 @@ namespace gta
 
         public class Comparer_age : IComparer
         {
-            Comparer _comparer = new Comparer(System.Globalization.CultureInfo.CurrentCulture);
+            readonly Comparer _comparer = new Comparer(System.Globalization.CultureInfo.CurrentCulture);
 
             public int Compare(object x, object y)
             {
-                // Convert string comparisons to int
- 
                 return _comparer.Compare(Convert.ToInt32(Regex.Replace(x.ToString(), @"\D", "")), Convert.ToInt32(Regex.Replace(y.ToString(), @"\D", "")));
             }
         }
 
         public class Comparer_level : IComparer
         {
-            Comparer _comparer = new Comparer(System.Globalization.CultureInfo.CurrentCulture);
+            readonly Comparer _comparer = new Comparer(System.Globalization.CultureInfo.CurrentCulture);
 
             public int Compare(object x, object y)
             {
-                // Convert string comparisons to int
-
-                return _comparer.Compare((split(x.ToString(), "-")[1]), (split(y.ToString(), "-")[1]));
+                return _comparer.Compare((Split(x.ToString(), "-")[1]), (Split(y.ToString(), "-")[1]));
             }
 
-            public string[] split(string a, string b)
+            public string[] Split(string a, string b)
             {
                 return a.Split(new string[] { b }, StringSplitOptions.None);
             }
         }
 
-        private void start_Click(object sender, EventArgs e)
+        private void AddData(ref ArrayList playin, string writer, string contents)
         {
-            ArrayList playin = new ArrayList();//참가하는 모든 사람
-           
-            string strResult = request("https://m.cafe.naver.com/ArticleRead.nhn?clubid=14021316&articleid=" + split(url.Text, "/")[4] + "&page=1", "utf-8").Replace(" ", "").Replace("\n", "").Replace("\t", "");
+            char cate = contents.ToUpper().ToCharArray()[0];
+            if (cate <= 'Z' && cate >= 'A')//댓글 내용중에 앞에 첫글자가 알파벳으로 시작
+            {
+                int is_in = 0;
+                string name_cate = writer + "-" + cate.ToString();
 
-            string strResult1 = request("http://m.cafe.naver.com/CommentView.nhn?search.clubid=14021316&search.page=" + "1" + "&search.articleid=" + split(url.Text, "/")[4], "utf-8");
-            string page = between(strResult1, "<ul class=\"u_cbox_list\">", "</ul>");
-            for (int cnt = 2; cnt <= Convert.ToInt32(textBox1.Text); cnt++)
-            {
-                string strResult2 = request("http://m.cafe.naver.com/CommentView.nhn?search.clubid=14021316&search.page=" + cnt.ToString() + "&search.articleid=" + split(url.Text, "/")[4], "utf-8");
-                page = page + between(strResult2, "<ul class=\"u_cbox_list\">", "</ul>");
-            }
-            page = page.Replace(" ", "");
-            
-            string[] detail = split(page, "<divclass=\"u_cbox_comment_box\">");
-            for (int cnt = 1; cnt < detail.Length; cnt++)
-            {
-                try
+                for (int i = 0; i < playin.Count; i++)
                 {
-                    string detail2 = detail[cnt];//<-숫자를 바꾸면 다음 댓글이 나옴
-                                                 //MessageBox.Show(detail2);
-                    string contents = between(detail2, "<spanclass=\"u_cbox_contents\">", "</span>");//댓글 내용
-                    contents = contents.Replace("\r", "");
-
-                    //MessageBox.Show(contents);
-
-                    string writer = between(detail2, "<spanclass=\"u_cbox_info_main\">", "</span>");//댓글 작성자
-                    writer = HtmlStrip(writer);
-                    writer = writer.Replace("\r\n", "").Replace("작성자", "").Replace("New", "").Replace("\n", "");
-                    //MessageBox.Show(contents);
-                    //MessageBox.Show(writer);
-
-                    char cate = contents.ToUpper().ToCharArray()[0];
-                    if (cate <= 'Z' && cate >= 'A')//댓글 내용중에 앞에 첫글자가 알파벳으로 시작
+                    if (playin[i].ToString().Contains(writer))
                     {
-                        int is_in = 0;
-                        string name_cate = writer + "-" + cate.ToString();
-
-                        for (int i = 0; i < playin.Count; i++)
-                        {
-                            if (playin[i].ToString().Contains(writer))
-                            {
-                                is_in = 1;
-                                richTextBox1.Text = richTextBox1.Text + "수정 - " + contents + "-" + writer + "\n";
-                                playin.RemoveAt(i);
-                                playin.Add(name_cate);
-                                break;
-                            }
-                        }
-                        if(is_in == 0)
-                        {
-                            if (!writer.Contains("박코치"))
-                            {
-                                richTextBox1.Text = richTextBox1.Text + "추가 - " + contents + "-" + writer + "\n";
-                                playin.Add(name_cate);
-                            }
-                        }
-                        
-                    }
-                    if (contents.Contains("취소") || contents.Contains("불참"))
-                    {
-                        for (int i = 0; i < playin.Count; i++)
-                        {
-                            if (playin[i].ToString().Contains(writer))
-                            {
-                                richTextBox1.Text = richTextBox1.Text + "제거 - " + contents + "-" + writer + "\n";
-                                playin.RemoveAt(i);
-                            }
-                        }
-                    }
-                    if (contents.Contains("불가"))
-                    {
-                        if (writer.Contains("박코치"))
-                        {
-                            richTextBox1.Text = richTextBox1.Text + "제거 - " + contents + "-" + writer + "\n";
-                            playin.RemoveAt(playin.Count-1);
-                        }
+                        is_in = 1;
+                        richTextBox1.Text = richTextBox1.Text + "수정 - " + contents + "-" + writer + "\n";
+                        playin.RemoveAt(i);
+                        playin.Add(name_cate);
+                        break;
                     }
                 }
-                catch
+                if (is_in == 0)
                 {
-
+                    if (!writer.Contains("박코치"))
+                    {
+                        richTextBox1.Text = richTextBox1.Text + "추가 - " + contents + "-" + writer + "\n";
+                        playin.Add(name_cate);
+                    }
                 }
-                
+
             }
-            richTextBox1.Text = richTextBox1.Text + "------------------------\n";
-            toolStripProgressBar1.Maximum = playin.Count;
-            for (int i = 0; i < playin.Count; i++)
+            if (contents.Contains("취소") || contents.Contains("불참"))
             {
-                toolStripProgressBar1.Value = i + 1;
-                String[] result = check_grade(split(playin[i].ToString(), "-")[0]);
-                playin[i] = playin[i] + "-" + result[0];
-
-                if (result[1].Contains("-"))
+                for (int i = 0; i < playin.Count; i++)
                 {
-                    richTextBox1.Text = richTextBox1.Text + "확인 - " + playin[i].ToString() + " --> " + result[1] + "에서 Z로\n";
-                    result[1] = "Z";
-                }
-
-                if (result[1].Contains("+"))
-                {
-                    richTextBox1.Text = richTextBox1.Text + "확인 - " + playin[i].ToString() + " --> " + result[1] + "에서 A로\n";
-                    result[1] = "A";
-                }
-
-                if (result[1].Equals(""))
-                {
-                    richTextBox1.Text = richTextBox1.Text + "확인 - " + playin[i].ToString() + " --> " + result[1] + "검색불가\n";
-                }
-                if (!result[1].Contains(split(playin[i].ToString(), "-")[1]) && !result[1].Equals(""))
-                {
-                    richTextBox1.Text = richTextBox1.Text + "변경 - " + playin[i].ToString() + " --> " + result[1] + "조로\n";
-                    playin[i] = playin[i].ToString().Replace(split(playin[i].ToString(), "-")[1], result[1]);
+                    if (playin[i].ToString().Contains(writer))
+                    {
+                        richTextBox1.Text = richTextBox1.Text + "제거 - " + contents + "-" + writer + "\n";
+                        playin.RemoveAt(i);
+                    }
                 }
             }
-
-            for (int i = 0; i < playin.Count; i++)
+            if (contents.Contains("불가"))
             {
-                richTextBox2.Text = richTextBox2.Text + playin[i] + "\n";
-                richTextBox2.Text = richTextBox2.Text.Replace("\n\n", "");
+                if (writer.Contains("박코치"))
+                {
+                    richTextBox1.Text = richTextBox1.Text + "제거 - " + contents + "-" + writer + "\n";
+                    playin.RemoveAt(playin.Count - 1);
+                }
             }
-
-            MessageBox.Show("완료");
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void Recursive(ref ArrayList playin, ref string lastId, ref string lastRefId)
+        {
+            string strResult = Request($"https://apis.naver.com/cafe-web/cafe-articleapi/cafes/14021316/articles/{ Split(url.Text, "/")[4] }/comments/more/next?requestFrom=B&orderBy=asc&fromPopular=false&commentId={lastId}&refCommentId={lastRefId}", "utf-8");
+
+            JObject jo = JObject.Parse(strResult);
+            var items = jo.SelectToken("comments").SelectToken("items");
+            if(items.Count() > 1)
+            {
+                foreach (var item in items)
+                {
+                    var content = item.SelectToken("content").ToString();
+                    var id = item.SelectToken("id").ToString();
+                    var refId = item.SelectToken("refId").ToString();
+                    var nick = item.SelectToken("writer").SelectToken("nick").ToString();
+                    lastId = id;
+                    lastRefId = refId;
+
+                    AddData(ref playin, nick, content);
+                }
+                Recursive(ref playin, ref lastId, ref lastRefId);
+            }
+        }
+
+        private void AddRichBox(string str)
+        {
+            Invoke(new Action(() =>
+            {
+                richTextBox1.Text += str;
+            }));
+        }
+
+        private void Start_Click(object sender, EventArgs e)
+        {
+            new Thread(() =>
+            {
+                string lastId = "";
+                string lastRefId = "";
+                ArrayList playin = new ArrayList();//참가하는 모든 사람
+
+                Recursive(ref playin, ref lastId, ref lastRefId);
+
+                AddRichBox("------------------------\n");
+                toolStripProgressBar1.Maximum = playin.Count;
+                for (int i = 0; i < playin.Count; i++)
+                {
+                    toolStripProgressBar1.Value = i + 1;
+                    String[] result = Check_grade(Split(playin[i].ToString(), "-")[0]);
+                    playin[i] = playin[i] + "-" + result[0];
+
+                    if (result[1].Contains("-"))
+                    {
+                        AddRichBox("확인 - " + playin[i].ToString() + " --> " + result[1] + "에서 Z로\n");
+                        result[1] = "Z";
+                    }
+
+                    if (result[1].Contains("+"))
+                    {
+                        AddRichBox("확인 - " + playin[i].ToString() + " --> " + result[1] + "에서 A로\n");
+                        result[1] = "A";
+                    }
+
+                    if (result[1].Equals(""))
+                    {
+                        AddRichBox("확인 - " + playin[i].ToString() + " --> " + result[1] + "검색불가\n");
+                    }
+                    if (!result[1].Contains(Split(playin[i].ToString(), "-")[1]) && !result[1].Equals(""))
+                    {
+                        AddRichBox("변경 - " + playin[i].ToString() + " --> " + result[1] + "조로\n");
+                        playin[i] = playin[i].ToString().Replace(Split(playin[i].ToString(), "-")[1], result[1]);
+                    }
+                }
+
+                for (int i = 0; i < playin.Count; i++)
+                {
+                    richTextBox2.Text = richTextBox2.Text + playin[i] + "\n";
+                    richTextBox2.Text = richTextBox2.Text.Replace("\n\n", "");
+                }
+
+                MessageBox.Show("완료");
+
+            }).Start();
+        }
+
+        private void Button1_Click(object sender, EventArgs e)
         {
             String csv = "";
             ArrayList playin = new ArrayList();//참가하는 모든 사람
             ArrayList play_group = new ArrayList();//임시 조
 
-            string[] rich_get = split(richTextBox2.Text,"\n");
+            string[] rich_get = Split(richTextBox2.Text, "\n");
             for (int i = 0; i < rich_get.Length; i++)
             {
                 if (!rich_get[i].Equals(""))
                 {
                     playin.Add(rich_get[i]);
                 }
-                
             }
 
             playin.Sort(new Comparer_level());
@@ -367,7 +371,7 @@ namespace gta
                     {
                         csv = csv + play_group[ii] + ",";
                     }
-                    csv = csv + "\n";
+                    csv += "\n";
                     play_group = new ArrayList();
                 }
             }
@@ -378,10 +382,6 @@ namespace gta
             MessageBox.Show("완료");
         }
 
-        private void toolStripProgressBar1_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }
 
