@@ -217,6 +217,10 @@ namespace gta
 
         private void AddData(ref ArrayList playin, string writer, string contents)
         {
+            if(contents == "")
+            {
+                return;
+            }
             char cate = contents.ToUpper().ToCharArray()[0];
             if (cate <= 'Z' && cate >= 'A')//댓글 내용중에 앞에 첫글자가 알파벳으로 시작
             {
