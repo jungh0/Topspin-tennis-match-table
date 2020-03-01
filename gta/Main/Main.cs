@@ -43,6 +43,7 @@ namespace gta
 
                 AddRichBox("------------------------\n");
                 toolStripProgressBar1.Maximum = playin.Count;
+
                 for (int i = 0; i < playin.Count; i++)
                 {
                     toolStripProgressBar1.Value = i + 1;
@@ -217,10 +218,21 @@ namespace gta
 
         private void AddData(ref ArrayList playin, string writer, string contents)
         {
-            if(contents == "")
+            /*var tmpstr = "";
+            foreach (var aa in playin)
+            {
+                tmpstr += aa + "\n";
+            }
+            if (tmpstr.Contains("블루"))
+            {
+                MessageBox.Show(tmpstr);
+            }*/
+           
+            if (contents == "")
             {
                 return;
             }
+
             char cate = contents.ToUpper().ToCharArray()[0];
             if (cate <= 'Z' && cate >= 'A')//댓글 내용중에 앞에 첫글자가 알파벳으로 시작
             {
@@ -229,7 +241,7 @@ namespace gta
 
                 for (int i = 0; i < playin.Count; i++)
                 {
-                    if (playin[i].ToString().Contains(writer))
+                    if (StaticFunc.Split(playin[i].ToString(), "-")[0] == writer)
                     {
                         is_in = 1;
                         richTextBox1.Text = richTextBox1.Text + "수정 - " + contents + "-" + writer + "\n";
@@ -248,18 +260,20 @@ namespace gta
                 }
 
             }
-            if (contents.Contains("취소") || contents.Contains("불참"))
+
+            if (contents.Contains("취소") || contents.Contains("불참") || contents.Contains("어렵"))
             {
                 for (int i = 0; i < playin.Count; i++)
                 {
-                    if (playin[i].ToString().Contains(writer))
+                    if (StaticFunc.Split(playin[i].ToString(), "-")[0] == writer)
                     {
                         richTextBox1.Text = richTextBox1.Text + "제거 - " + contents + "-" + writer + "\n";
                         playin.RemoveAt(i);
                     }
                 }
             }
-            if (contents.Contains("불가"))
+
+            if ((contents.Contains("불가") && !contents.Contains("마스크 미착용")))
             {
                 if (writer.Contains("박코치"))
                 {
@@ -267,6 +281,7 @@ namespace gta
                     playin.RemoveAt(playin.Count - 1);
                 }
             }
+
         }
 
         private void Recursive(ref ArrayList playin, ref string lastId, ref string lastRefId)
