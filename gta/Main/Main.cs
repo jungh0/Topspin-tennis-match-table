@@ -23,6 +23,7 @@ namespace gta
             string version = fvi.FileVersion;
 
             toolStripStatusLabel1.Text = "ver " + version;
+            //richTextBox1.Text += AES.Builder().SetKey("").AESEncrypt128("");
         }
 
         private void Start_Click(object sender, EventArgs e)
